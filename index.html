@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>吉他找音练习</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+  <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
+</head>
+<body>
+  <h1>在指板上找到：<span id="target">加载中...</span></h1>
+  <div id="fretboard"></div>
+  <p id="feedback"></p>
+  <button id="next">下一题</button>
+
+  <script>
+    let pyodide;
+    let currentTarget = "";
+
+    async function main() {
+      // 1. 初始化 Pyodide
+      pyodide = await loadPyodide();
+
+      // 2. 获取 app.py 并写入虚拟文件系统
+      const resp = await fetch("./app.py");
+      const code = await resp.text();
+      pyodide.FS.writeFile("/app.py", code);
+      pyodide.runPython(`import sys; sys.path.append("/")`);
+
+      // 3. 导入 Python 模块
+      await pyodide.runPythonAsync(`import app`);
+
+      // 4. 出第一道题
+      await nextQuestion();
+
+      // 5. 绑定“下一题”按钮
+      document.getElementById("next").onclick = nextQuestion;
+    }
+
+    async function nextQuestion() {
+      // 调用 Python 的 new_question()
+      currentTarget = await pyodide.runPythonAsync(`app.new_question()`);
+      document.getElementById("target").textContent = currentTarget;
+      document.getElementById("feedback").textContent = "";
+      drawFretboard();
+    }
+
+    function drawFretboard() {
+      // 清空容器，避免 svguitar 重复叠加
+      const container = document.getElementById("fretboard");
+      container.innerHTML = "";
+
+      const chart = new svguitar.SVGuitarChord("#fretboard");
+
+      // 构造 6 根弦 × 12 品的指板图
+      // svguitar 的 fingers 数组格式：[弦号(1-6), 品, 文本/选项]
+      // 弦号 1 = 高音 E，6 = 低音 E
+      // 为了让每个品格都可点击，我们为每个 [弦, 品] 放置一个透明标记
+      const fingers = [];
+      for (let string = 1; string <= 6; string++) {
+        for (let fret = 1; fret <= 12; fret++) {
+          fingers.push([string, fret, {
+            text: "",
+            color: "transparent",
+            className: "clickable-fret",
+          }]);
+        }
+      }
+
+      chart
+        .configure({
+          strings: 6,
+          frets: 12,
+          position: 1,
+          tuning: ["E", "A", "D", "G", "B", "E"],
+          fingerSize: 1.2,
+          showFretMarkers: true,
+          fretMarkers: [3, 5, 7, 9, 12],
+        })
+        .chord({
+          fingers: fingers,
+          title: "",
+        })
+        .draw();
+
+      // svguitar 绘制后，为每个透明标记绑定点击事件
+      // 通过 SVG 元素的 data 属性或位置来判断弦/品不够可靠，
+      // 这里采用一个更直接的策略：在 svg 上覆盖一层可点击的网格。
+      attachClickHandlers(container);
+    }
+
+    function attachClickHandlers(container) {
+      // svguitar 的交互层支持有限，这里用一个轻量的覆盖方案：
+      // 监听 svg 内部的点击，根据点击坐标估算弦和品。
+      const svg = container.querySelector("svg");
+      if (!svg) return;
+
+      svg.style.cursor = "pointer";
+      svg.addEventListener("click", async (e) => {
+        const rect = svg.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        // 这个估算基于 svguitar 默认布局，如果你调整了 configure，可能需要微调。
+        const stringIndex = estimateString(x, rect.width); // 0-5, 0=6弦
+        const fret = estimateFret(y, rect.height);          // 1-12
+        if (fret < 1 || fret > 12 || stringIndex < 0 || stringIndex > 5) return;
+
+        const ok = await pyodide.runPythonAsync(
+          `app.check_answer(${stringIndex}, ${fret})`
+        );
+        const fb = document.getElementById("feedback");
+        if (ok) {
+          fb.textContent = "✅ 正确！";
+          fb.style.color = "green";
+        } else {
+          fb.textContent = "❌ 再试试。";
+          fb.style.color = "crimson";
+        }
+      });
+    }
+
+    // 粗略估算：根据 svg 宽度把 x 映射到 6 根弦（0=最左=6弦）
+    function estimateString(x, width) {
+      const padding = width * 0.12;
+      const usable = width - padding * 2;
+      const step = usable / 5;
+      const idx = Math.round((x - padding) / step);
+      return Math.max(0, Math.min(5, idx));
+    }
+
+    // 粗略估算：根据 svg 高度把 y 映射到 12 品
+    function estimateFret(y, height) {
+      const topPadding = height * 0.15;
+      const bottomPadding = height * 0.1;
+      const usable = height - topPadding - bottomPadding;
+      const fretHeight = usable / 12;
+      const fret = Math.floor((y - topPadding) / fretHeight) + 1;
+      return Math.max(1, Math.min(12, fret));
+    }
+
+    main();
+  </script>
+</body>
+</html>

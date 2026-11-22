@@ -1,0 +1,42 @@
+# app.py
+import random
+
+# 标准调弦 E A D G B E，从 6 弦到 1 弦
+TUNING = ['E', 'A', 'D', 'G', 'B', 'E']
+NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
+def note_at(string_index, fret):
+    """string_index: 0 = 6弦(低E), 5 = 1弦(高E)。返回该位置的音名。"""
+    open_note = TUNING[string_index]
+    start = NOTE_NAMES.index(open_note)
+    return NOTE_NAMES[(start + fret) % 12]
+
+# 用于生成题目的目标音（避开同音异名带来的歧义）
+QUIZ_TARGETS = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+
+_current = {"target": None, "correct": []}
+
+def new_question():
+    """生成一道新题，返回目标音名。同时在 Python 内部记录所有正确答案位置。"""
+    global _current
+    target = random.choice(QUIZ_TARGETS)
+    # 在 0–11 品内找出该音的所有位置
+    correct = []
+    for s in range(6):
+        for f in range(12):
+            if note_at(s, f) == target:
+                correct.append(f"{s}:{f}")
+    _current = {"target": target, "correct": correct}
+    return target
+
+def check_answer(string_index, fret):
+    """JS 传入用户点击的弦和品。返回 True / False。"""
+    global _current
+    if _current["target"] is None:
+        return False
+    key = f"{string_index}:{fret}"
+    if key in _current["correct"]:
+        # 答对后从列表中移除，避免同位置重复计分（也可以选择不移除）
+        _current["correct"].remove(key)
+        return True
+    return False
