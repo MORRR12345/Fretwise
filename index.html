@@ -1,144 +1,70 @@
 <!doctype html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <title>吉他找音练习</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
-  <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f7">
+  <meta name="description" content="在交互式指板上学习音名、音程、音阶与和弦。">
+  <title>Fretwise · 吉他乐理练习</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./src/main.js"></script>
 </head>
 <body>
-  <h1>在指板上找到：<span id="target">加载中...</span></h1>
-  <div id="fretboard"></div>
-  <p id="feedback"></p>
-  <button id="next">下一题</button>
-
-  <script>
-    let pyodide;
-    let currentTarget = "";
-
-    async function main() {
-      // 1. 初始化 Pyodide
-      pyodide = await loadPyodide();
-
-      // 2. 获取 app.py 并写入虚拟文件系统
-      const resp = await fetch("./app.py");
-      const code = await resp.text();
-      pyodide.FS.writeFile("/app.py", code);
-      pyodide.runPython(`import sys; sys.path.append("/")`);
-
-      // 3. 导入 Python 模块
-      await pyodide.runPythonAsync(`import app`);
-
-      // 4. 出第一道题
-      await nextQuestion();
-
-      // 5. 绑定“下一题”按钮
-      document.getElementById("next").onclick = nextQuestion;
-    }
-
-    async function nextQuestion() {
-      // 调用 Python 的 new_question()
-      currentTarget = await pyodide.runPythonAsync(`app.new_question()`);
-      document.getElementById("target").textContent = currentTarget;
-      document.getElementById("feedback").textContent = "";
-      drawFretboard();
-    }
-
-    function drawFretboard() {
-      // 清空容器，避免 svguitar 重复叠加
-      const container = document.getElementById("fretboard");
-      container.innerHTML = "";
-
-      const chart = new svguitar.SVGuitarChord("#fretboard");
-
-      // 构造 6 根弦 × 12 品的指板图
-      // svguitar 的 fingers 数组格式：[弦号(1-6), 品, 文本/选项]
-      // 弦号 1 = 高音 E，6 = 低音 E
-      // 为了让每个品格都可点击，我们为每个 [弦, 品] 放置一个透明标记
-      const fingers = [];
-      for (let string = 1; string <= 6; string++) {
-        for (let fret = 1; fret <= 12; fret++) {
-          fingers.push([string, fret, {
-            text: "",
-            color: "transparent",
-            className: "clickable-fret",
-          }]);
-        }
-      }
-
-      chart
-        .configure({
-          strings: 6,
-          frets: 12,
-          position: 1,
-          tuning: ["E", "A", "D", "G", "B", "E"],
-          fingerSize: 1.2,
-          showFretMarkers: true,
-          fretMarkers: [3, 5, 7, 9, 12],
-        })
-        .chord({
-          fingers: fingers,
-          title: "",
-        })
-        .draw();
-
-      // svguitar 绘制后，为每个透明标记绑定点击事件
-      // 通过 SVG 元素的 data 属性或位置来判断弦/品不够可靠，
-      // 这里采用一个更直接的策略：在 svg 上覆盖一层可点击的网格。
-      attachClickHandlers(container);
-    }
-
-    function attachClickHandlers(container) {
-      // svguitar 的交互层支持有限，这里用一个轻量的覆盖方案：
-      // 监听 svg 内部的点击，根据点击坐标估算弦和品。
-      const svg = container.querySelector("svg");
-      if (!svg) return;
-
-      svg.style.cursor = "pointer";
-      svg.addEventListener("click", async (e) => {
-        const rect = svg.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        // 这个估算基于 svguitar 默认布局，如果你调整了 configure，可能需要微调。
-        const stringIndex = estimateString(x, rect.width); // 0-5, 0=6弦
-        const fret = estimateFret(y, rect.height);          // 1-12
-        if (fret < 1 || fret > 12 || stringIndex < 0 || stringIndex > 5) return;
-
-        const ok = await pyodide.runPythonAsync(
-          `app.check_answer(${stringIndex}, ${fret})`
-        );
-        const fb = document.getElementById("feedback");
-        if (ok) {
-          fb.textContent = "✅ 正确！";
-          fb.style.color = "green";
-        } else {
-          fb.textContent = "❌ 再试试。";
-          fb.style.color = "crimson";
-        }
-      });
-    }
-
-    // 粗略估算：根据 svg 宽度把 x 映射到 6 根弦（0=最左=6弦）
-    function estimateString(x, width) {
-      const padding = width * 0.12;
-      const usable = width - padding * 2;
-      const step = usable / 5;
-      const idx = Math.round((x - padding) / step);
-      return Math.max(0, Math.min(5, idx));
-    }
-
-    // 粗略估算：根据 svg 高度把 y 映射到 12 品
-    function estimateFret(y, height) {
-      const topPadding = height * 0.15;
-      const bottomPadding = height * 0.1;
-      const usable = height - topPadding - bottomPadding;
-      const fretHeight = usable / 12;
-      const fret = Math.floor((y - topPadding) / fretHeight) + 1;
-      return Math.max(1, Math.min(12, fret));
-    }
-
-    main();
-  </script>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Fretwise 首页"><span class="brand-mark" aria-hidden="true">✳</span><span>Fretwise</span></a>
+      <div class="topbar-right"><span class="topbar-caption">吉他乐理练习</span><span class="status-dot" aria-hidden="true"></span><span>本地学习</span></div>
+    </header>
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="eyebrow"><span class="eyebrow-line"></span> LEARN THE FRETBOARD</div>
+        <h1 id="page-title">把乐理，<br><span>弹在指尖。</span></h1>
+        <p>从每一个音开始，慢慢看懂整块指板。</p>
+      </section>
+      <section class="workspace" aria-label="练习工作区">
+        <div class="workspace-header">
+          <div><p class="section-kicker">PRACTICE STUDIO</p><h2>今天，练点什么？</h2></div>
+          <div class="session-chip"><span class="session-chip-icon">↗</span><span id="session-summary">本轮 0 / 0 正确</span></div>
+        </div>
+        <div class="mode-tabs" role="tablist" aria-label="练习模式">
+          <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" data-mode="locate">找音 <span>01</span></button>
+          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="identify">认音 <span>02</span></button>
+          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="interval">音程 <span>03</span></button>
+          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="explore">音阶与和弦 <span>04</span></button>
+        </div>
+        <div class="content-grid">
+          <section class="practice-card" aria-label="当前练习">
+            <div class="card-topline"><span id="mode-label">指板找音</span><span id="question-counter">第 01 题</span></div>
+            <div class="question-area"><p class="question-prompt" id="question-prompt"></p><h3 id="question-title"></h3><p class="question-hint" id="question-hint"></p></div>
+            <div id="answer-options" class="answer-options" hidden></div>
+            <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+            <div class="action-row"><button id="reveal-button" class="text-button" type="button">显示答案</button><button id="next-button" class="primary-button" type="button">下一题 <span aria-hidden="true">→</span></button></div>
+          </section>
+          <aside class="side-panel">
+            <section class="side-card" aria-labelledby="settings-title">
+              <div class="side-heading"><span class="small-icon">⌘</span><h3 id="settings-title">练习设置</h3></div>
+              <label class="field-label" for="fret-range">指板范围</label>
+              <select id="fret-range"><option value="5">0 – 5 品 · 入门</option><option value="12" selected>0 – 12 品 · 标准</option></select>
+              <label class="field-label" for="note-range">音名范围</label>
+              <select id="note-range"><option value="natural" selected>自然音 · C D E F G A B</option><option value="all">全部半音 · 包含升号</option></select>
+              <p class="setting-note">标准调弦 · E A D G B E</p>
+            </section>
+            <section class="side-card progress-card" aria-labelledby="progress-title">
+              <div class="side-heading"><span class="small-icon">◎</span><h3 id="progress-title">学习足迹</h3></div>
+              <div class="progress-number"><span id="total-correct">0</span><span class="progress-suffix">题答对</span></div>
+              <p id="progress-detail">每一次练习，都算数。</p>
+              <button id="reset-button" class="subtle-button" type="button">清除记录</button>
+            </section>
+          </aside>
+        </div>
+        <section class="fretboard-card" aria-labelledby="fretboard-title">
+          <div class="fretboard-heading"><div><p class="section-kicker">THE FRETBOARD</p><h2 id="fretboard-title">指板视图</h2></div><span class="board-legend"><span class="legend-dot"></span><span id="board-caption">点击一个位置作答</span></span></div>
+          <div class="board-scroll"><div id="fretboard" class="fretboard" aria-label="交互式吉他指板"></div></div>
+          <div class="board-foot"><span>6 弦 · 低音 E</span><span>1 弦 · 高音 E</span></div>
+        </section>
+      </section>
+    </main>
+    <footer class="footer"><span>Fretwise © 2026</span><span>让练习，成为日常。</span></footer>
+  </div>
 </body>
 </html>
