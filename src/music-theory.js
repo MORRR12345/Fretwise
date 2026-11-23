@@ -1,4 +1,5 @@
 export const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+export const SOLFEGE = ['1','♯1','2','♯2','3','4','♯4','5','♯5','6','♯6','7'];
 export const NATURAL_NOTES = ['C','D','E','F','G','A','B'];
 export const TUNING = ['E','A','D','G','B','E']; // 6 弦到 1 弦
 export const INTERVALS = [
@@ -17,6 +18,11 @@ export const PATTERNS = [
   {id:'minor-chord',name:'小三和弦',steps:[0,3,7],kind:'chord',description:'根音 + 小三度 + 纯五度'}
 ];
 export const pitchClass = note => NOTES.indexOf(note);
+export const formatNote = (note, notation = 'letter') => {
+  if (notation !== 'solfege') return note;
+  const index = pitchClass(note);
+  return index < 0 ? note : SOLFEGE[index];
+};
 export const noteAt = (stringIndex, fret) => {
   if (!Number.isInteger(stringIndex) || stringIndex<0 || stringIndex>5 || !Number.isInteger(fret) || fret<0) throw new RangeError('无效的弦或品位');
   return NOTES[(pitchClass(TUNING[stringIndex])+fret)%12];
