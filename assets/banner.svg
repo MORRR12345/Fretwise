@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Fretwise · 吉他乐理练习</title>
+  <desc id="desc">深色横幅：左侧为 Fretwise 品牌与「把乐理，弹在指尖」标语，右侧为带高亮音符的吉他指板。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070b14"/>
+      <stop offset="0.52" stop-color="#0d1526"/>
+      <stop offset="1" stop-color="#111b30"/>
+    </linearGradient>
+    <radialGradient id="glowBlue" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#4f7cff" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#4f7cff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowViolet" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="markFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6d8bff"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="dotFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8aa4ff"/>
+      <stop offset="1" stop-color="#4f6dff"/>
+    </linearGradient>
+    <linearGradient id="boardFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#0e1626"/>
+    </linearGradient>
+    <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1200" height="360" rx="24" fill="url(#bg)"/>
+  <ellipse cx="1010" cy="20" rx="360" ry="240" fill="url(#glowBlue)"/>
+  <ellipse cx="300" cy="380" rx="330" ry="220" fill="url(#glowViolet)"/>
+  <rect x="0.5" y="0.5" width="1199" height="359" rx="23.5" fill="none" stroke="#ffffff" stroke-opacity="0.1"/>
+
+  <!-- 右侧指板 -->
+  <g>
+    <rect x="596" y="48" width="564" height="264" rx="20" fill="url(#boardFill)" stroke="#1d2a44"/>
+    <g stroke="#22314e" stroke-width="1">
+      <path d="M726 68 V300 M770 68 V300 M814 68 V300 M858 68 V300 M902 68 V300 M946 68 V300 M990 68 V300 M1034 68 V300 M1078 68 V300 M1122 68 V300"/>
+    </g>
+    <rect x="676" y="68" width="6" height="232" rx="3" fill="#26344f"/>
+    <!-- 弦 -->
+    <g stroke="#93a4c4" stroke-linecap="round" opacity="0.72">
+      <path d="M620 90 H1160" stroke-width="1"/>
+      <path d="M620 127 H1160" stroke-width="1.4"/>
+      <path d="M620 164 H1160" stroke-width="1.8"/>
+      <path d="M620 201 H1160" stroke-width="2.2"/>
+      <path d="M620 238 H1160" stroke-width="2.7"/>
+      <path d="M620 275 H1160" stroke-width="3.2"/>
+    </g>
+    <!-- 品位标记 -->
+    <g fill="#3a4a6b">
+      <circle cx="792" cy="182.5" r="3"/>
+      <circle cx="880" cy="182.5" r="3"/>
+      <circle cx="968" cy="182.5" r="3"/>
+      <circle cx="1056" cy="182.5" r="3"/>
+    </g>
+    <!-- C 大三和弦：G E C E C -->
+    <g filter="url(#softGlow)">
+      <circle cx="792" cy="90" r="15" fill="#0e1626" stroke="#7f9bff" stroke-width="2"/>
+      <circle cx="880" cy="127" r="15" fill="#0e1626" stroke="#7f9bff" stroke-width="2"/>
+      <circle cx="880" cy="164" r="15" fill="url(#dotFill)" stroke="#b9c8ff" stroke-width="2"/>
+      <circle cx="880" cy="164" r="24" fill="none" stroke="#6d8bff" stroke-opacity="0.35"/>
+      <circle cx="748" cy="201" r="15" fill="#0e1626" stroke="#7f9bff" stroke-width="2"/>
+      <circle cx="792" cy="238" r="15" fill="#0e1626" stroke="#7f9bff" stroke-width="2"/>
+    </g>
+    <g font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" text-anchor="middle" fill="#dbe6ff">
+      <text x="792" y="95">G</text>
+      <text x="880" y="132">E</text>
+      <text x="880" y="169">C</text>
+      <text x="748" y="206">E</text>
+      <text x="792" y="243">C</text>
+    </g>
+    <text x="620" y="332" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="9.5" font-weight="600" letter-spacing="2.4" fill="#4d5f83">STANDARD TUNING · E A D G B E</text>
+  </g>
+
+  <!-- 品牌 -->
+  <rect x="64" y="72" width="56" height="56" rx="17" fill="url(#markFill)"/>
+  <path d="M92 84 C93.6 96.4 100.6 103.4 113 105 C100.6 106.6 93.6 113.6 92 126 C90.4 113.6 83.4 106.6 71 105 C83.4 103.4 90.4 96.4 92 84 Z" fill="#ffffff"/>
+  <text x="136" y="120" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="58" font-weight="700" letter-spacing="-2.4" fill="#f4f7ff">Fretwise</text>
+
+  <text x="64" y="52" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="600" letter-spacing="3.1" fill="#7386a8">INTERACTIVE GUITAR THEORY</text>
+  <text x="64" y="170" font-family="Inter, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="27" font-weight="600" letter-spacing="1.2" fill="#dbe4f5">把乐理，弹在指尖。</text>
+  <text x="64" y="203" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="13.5" letter-spacing="0.3" fill="#7e90b0">Learn the fretboard, one note at a time.</text>
+
+  <path d="M64 229 H440" stroke="#2a3a58" stroke-width="1"/>
+
+  <!-- 模式胶囊 -->
+  <g font-family="Inter, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#9db0d0">
+    <rect x="64" y="250" width="58" height="30" rx="15" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.09"/>
+    <text x="93" y="270" text-anchor="middle">找音</text>
+    <rect x="130" y="250" width="58" height="30" rx="15" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.09"/>
+    <text x="159" y="270" text-anchor="middle">认音</text>
+    <rect x="196" y="250" width="58" height="30" rx="15" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.09"/>
+    <text x="225" y="270" text-anchor="middle">音程</text>
+    <rect x="262" y="250" width="106" height="30" rx="15" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.09"/>
+    <text x="315" y="270" text-anchor="middle">音阶与和弦</text>
+  </g>
+
+  <!-- 装饰星点 -->
+  <g fill="#ffffff">
+    <circle cx="522" cy="88" r="1.4" opacity="0.55"/>
+    <circle cx="556" cy="286" r="1.2" opacity="0.4"/>
+    <circle cx="392" cy="322" r="1.3" opacity="0.35"/>
+    <circle cx="482" cy="190" r="1" opacity="0.5"/>
+  </g>
+</svg>
