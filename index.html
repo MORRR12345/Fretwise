@@ -4,9 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f5f7">
-  <meta name="description" content="在交互式指板上学习音名、音程、音阶与和弦。">
+  <meta name="description" content="在会发声的交互式指板上练习认音、找音、分析和弦与寻找和弦。">
   <meta name="author" content="MORRR">
   <title>Fretwise · 吉他乐理练习</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./src/main.js"></script>
 </head>
@@ -14,13 +15,17 @@
   <div class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="Fretwise 首页" title="Fretwise · by MORRR"><span class="brand-mark" aria-hidden="true">✳</span><span>Fretwise</span></a>
-      <div class="topbar-right"><span class="topbar-caption">吉他乐理练习</span><span class="status-dot" aria-hidden="true"></span><span>本地学习</span></div>
+      <div class="topbar-right">
+        <span class="topbar-caption">吉他乐理练习</span>
+        <button id="sound-toggle" class="sound-toggle" type="button" aria-pressed="true"><span class="sound-icon" aria-hidden="true">♪</span><span id="sound-label">声音 开</span></button>
+        <span class="status-dot" aria-hidden="true"></span><span>本地学习</span>
+      </div>
     </header>
     <main>
       <section class="hero" aria-labelledby="page-title">
         <div class="eyebrow"><span class="eyebrow-line"></span> LEARN THE FRETBOARD</div>
         <h1 id="page-title">把乐理，<br><span>弹在指尖。</span></h1>
-        <p>从每一个音开始，慢慢看懂整块指板。</p>
+        <p>从每一个音开始，听着声音看懂整块指板。</p>
       </section>
       <section class="workspace" aria-label="练习工作区">
         <div class="workspace-header">
@@ -28,33 +33,40 @@
           <div class="session-chip"><span class="session-chip-icon">↗</span><span id="session-summary">本轮 0 / 0 正确</span></div>
         </div>
         <div class="mode-tabs" role="tablist" aria-label="练习模式">
-          <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" data-mode="locate">找音 <span>01</span></button>
-          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="identify">认音 <span>02</span></button>
-          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="interval">音程 <span>03</span></button>
-          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="explore">音阶与和弦 <span>04</span></button>
+          <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" data-mode="identify">认音 <span>01</span></button>
+          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="locate" tabindex="-1">找音 <span>02</span></button>
+          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="analyze" tabindex="-1">分析和弦 <span>03</span></button>
+          <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="findchord" tabindex="-1">找和弦 <span>04</span></button>
         </div>
         <div class="content-grid">
           <section class="practice-card" aria-label="当前练习">
-            <div class="card-topline"><span id="mode-label">指板找音</span><span id="question-counter">第 01 题</span></div>
+            <div class="card-topline"><span id="mode-label">位置认音</span><span id="question-counter">准备中</span></div>
             <div class="question-area"><p class="question-prompt" id="question-prompt"></p><h3 id="question-title"></h3><p class="question-hint" id="question-hint"></p></div>
+            <div id="practice-tools" class="practice-tools" hidden></div>
             <div id="answer-options" class="answer-options" hidden></div>
             <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
-            <div class="action-row"><button id="reveal-button" class="text-button" type="button">显示答案</button><button id="next-button" class="primary-button" type="button">下一题 <span aria-hidden="true">→</span></button></div>
+            <div class="action-row">
+              <div class="action-left">
+                <button id="replay-button" class="text-button icon-button" type="button" hidden><span aria-hidden="true">↻</span> 重听</button>
+                <button id="reveal-button" class="text-button" type="button" hidden>显示答案</button>
+              </div>
+              <button id="next-button" class="primary-button" type="button">开始练习 <span aria-hidden="true">→</span></button>
+            </div>
           </section>
           <section class="fretboard-card" aria-labelledby="fretboard-title">
             <div class="fretboard-heading"><div><p class="section-kicker">THE FRETBOARD</p><h2 id="fretboard-title">指板视图</h2></div><span class="board-legend"><span class="legend-dot"></span><span id="board-caption">点击一个位置作答</span></span></div>
             <div class="board-scroll"><div id="fretboard" class="fretboard" aria-label="交互式吉他指板"></div></div>
-            <div class="board-foot"><span id="foot-high">1 弦 · 高音 E</span><span id="foot-low">6 弦 · 低音 E</span></div>
+            <div class="board-foot"><span id="foot-high">1 弦 · 高音</span><span id="foot-low">6 弦 · 低音</span></div>
           </section>
           <aside class="side-panel">
             <section class="side-card" aria-labelledby="settings-title">
               <div class="side-heading"><span class="small-icon">⌘</span><h3 id="settings-title">练习设置</h3></div>
               <div class="field-row">
-                <div class="field"><label class="field-label" for="fret-range">指板范围</label><select id="fret-range"><option value="5">0 – 5 品 · 入门</option><option value="12" selected>0 – 12 品 · 标准</option></select></div>
-                <div class="field"><label class="field-label" for="note-range">音名范围</label><select id="note-range"><option value="natural" selected>自然音 · C D E F G A B</option><option value="all">全部半音 · 包含升号</option></select></div>
-                <div class="field"><label class="field-label" for="notation">音名显示</label><select id="notation"><option value="letter" selected>音名 · C D E F G A B</option><option value="solfege">唱名 · 1 2 3 4 5 6 7</option></select></div>
+                <div class="field"><label class="field-label" for="fret-range">指板范围</label><select id="fret-range"><option value="5">0 – 5 品</option><option value="12" selected>0 – 12 品</option></select></div>
+                <div class="field"><label class="field-label" for="note-range">音名范围</label><select id="note-range"><option value="natural" selected>自然音</option><option value="all">全部半音</option></select></div>
+                <div class="field"><label class="field-label" for="chord-group">和弦类别</label><select id="chord-group"><option value="major">大三和弦 · 简单</option><option value="minor">小三和弦 · 简单</option><option value="seventh">七和弦 · 进阶</option><option value="suspended">挂四和弦 · 进阶</option><option value="all" selected>完全随机</option></select></div>
               </div>
-              <p class="setting-note">标准调弦 · 1 弦在上，6 弦在下</p>
+              <p class="setting-note">标准调弦 · 声音实时合成 · 首次点击后启用</p>
             </section>
             <section class="side-card progress-card" aria-labelledby="progress-title">
               <div class="side-heading"><span class="small-icon">◎</span><h3 id="progress-title">学习足迹</h3></div>

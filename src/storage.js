@@ -1,13 +1,15 @@
 const KEY='fretwise.v1';
-const defaults={maxFret:12,noteRange:'natural',notation:'letter',attempted:0,correct:0};
+const CHORD_GROUPS=['major','minor','seventh','suspended','all'];
+const defaults={maxFret:12,noteRange:'natural',sound:true,chordGroup:'all',attempted:0,correct:0};
 export function loadState(){
   try{
     const saved=JSON.parse(localStorage.getItem(KEY));
     if(!saved||typeof saved!=='object') return {...defaults};
     return {
-      maxFret:[5,12].includes(Number(saved.maxFret))?Number(saved.maxFret):12,
-      noteRange:['natural','all'].includes(saved.noteRange)?saved.noteRange:'natural',
-      notation:['letter','solfege'].includes(saved.notation)?saved.notation:'letter',
+      maxFret:[5,12].includes(Number(saved.maxFret))?Number(saved.maxFret):defaults.maxFret,
+      noteRange:['natural','all'].includes(saved.noteRange)?saved.noteRange:defaults.noteRange,
+      sound:typeof saved.sound==='boolean'?saved.sound:defaults.sound,
+      chordGroup:CHORD_GROUPS.includes(saved.chordGroup)?saved.chordGroup:defaults.chordGroup,
       attempted:Number.isSafeInteger(saved.attempted)&&saved.attempted>=0?saved.attempted:0,
       correct:Number.isSafeInteger(saved.correct)&&saved.correct>=0?saved.correct:0
     };

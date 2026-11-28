@@ -4,6 +4,7 @@ body{margin:0}
 button,select{font:inherit}
 button{cursor:pointer}
 button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #86a9ff;outline-offset:3px}
+[hidden]{display:none!important}
 
 /* 顶栏 */
 .app-shell{max-width:1440px;margin:auto;padding:0 56px}
@@ -11,8 +12,13 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #86a
 .brand{display:flex;align-items:center;gap:11px;color:#202226;text-decoration:none;font-size:21px;font-weight:750;letter-spacing:-.8px}
 .brand-mark{display:grid;place-items:center;width:35px;height:35px;border-radius:11px;color:white;background:#26282d;font-size:27px;line-height:1}
 .topbar-right{display:flex;align-items:center;gap:9px;color:#92949c;font-size:12px;font-weight:600}
-.topbar-caption{margin-right:18px;color:#5c6069}
+.topbar-caption{margin-right:10px;color:#5c6069}
 .status-dot{width:7px;height:7px;border-radius:50%;background:#75bc96}
+.sound-toggle{display:inline-flex;align-items:center;gap:6px;margin-right:4px;padding:6px 11px;border:1px solid #e5e7ec;border-radius:100px;background:#fff;color:#4d5563;font-size:11px;font-weight:700;transition:.2s}
+.sound-toggle:hover{border-color:#b9c8f0;color:#2e5fdf}
+.sound-icon{display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#eef2ff;color:#4a6fdd;font-size:10px}
+.sound-toggle.is-off{background:#f7f7f9;color:#9aa0aa}
+.sound-toggle.is-off .sound-icon{background:#eceef2;color:#a2a7b1}
 
 /* 标题区：紧凑排版，让练习与指板同屏 */
 .hero{padding:22px 0 20px}
@@ -45,21 +51,37 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #86a
 .question-area{display:flex;flex:1;flex-direction:column;justify-content:center;padding:18px 0 14px}
 .question-prompt{margin:0 0 8px;color:#8b9099;font-size:13px}
 .question-area h3{margin:0;font-size:clamp(25px,2.6vw,36px);letter-spacing:-.055em;line-height:1.18}
-.question-hint{margin:12px 0 0;color:#888e98;font-size:12px}
+.solfege-pitch{position:relative;display:inline-block;line-height:1;letter-spacing:0}
+.solfege-pitch::before,.solfege-pitch::after{content:'';position:absolute;left:50%;display:none;width:.1em;height:.1em;border-radius:50%;background:currentColor;transform:translateX(-50%)}
+.solfege-pitch.above::before{bottom:100%;display:block;margin-bottom:.08em}
+.solfege-pitch.above.dots-2::after{bottom:100%;display:block;margin-bottom:.24em}
+.solfege-pitch.below::before{top:100%;display:block;margin-top:.06em}
+.solfege-pitch.below.dots-2::after{top:100%;display:block;margin-top:.22em}
+.question-hint{margin:12px 0 0;color:#888e98;font-size:12px;line-height:1.5}
 .feedback{min-height:39px;padding:9px 0;color:#59616d;font-size:13px;line-height:1.5}
 .feedback.success{color:#237a55}
 .feedback.error{color:#c05256}
 .action-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto}
+.action-left{display:flex;align-items:center;gap:15px}
 .text-button,.subtle-button{border:0;background:transparent;color:#747b89;font-size:12px;font-weight:650;padding:9px 0}
 .text-button:hover,.subtle-button:hover{color:#3563db}
+.icon-button span{margin-right:2px}
 .primary-button{border:0;border-radius:10px;background:#2e5fdf;color:white;padding:12px 17px;font-size:12px;font-weight:700;box-shadow:0 7px 15px rgba(46,95,223,.18)}
-.primary-button:hover{background:#224fc7}
+.primary-button:hover:not(:disabled){background:#224fc7}
+.primary-button:disabled{background:#c1c9da;box-shadow:none;cursor:not-allowed}
 .primary-button span{padding-left:18px}
+
+/* 题目附加信息：找和弦的组成音与判定方式 */
+.practice-tools{display:flex;flex-direction:column;gap:10px;padding:0 0 12px}
+.chord-composition{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.tool-label{color:#9296a0;font-size:10px;font-weight:800;letter-spacing:1.2px}
+.practice-tools .note-pills{margin:0}
+.tool-note{margin:0;color:#9298a2;font-size:11px;line-height:1.5}
 
 /* 指板 */
 .fretboard-card{display:flex;flex-direction:column;min-width:0;padding:20px 22px 14px;background:#fff}
-.board-legend{display:flex;align-items:center;gap:8px;color:#8e939d;font-size:11px}
-.legend-dot{width:7px;height:7px;border-radius:50%;background:#5d7fe2}
+.board-legend{display:flex;align-items:center;gap:8px;max-width:190px;color:#8e939d;font-size:11px;text-align:right}
+.legend-dot{width:7px;height:7px;border-radius:50%;background:#5d7fe2;flex:none}
 .board-scroll{width:100%;min-width:0;overflow-x:auto;margin-top:14px;padding-bottom:4px}
 .fretboard{min-width:600px}
 .fretboard svg{display:block;width:100%;height:auto}
@@ -91,21 +113,25 @@ select{width:100%;padding:10px 12px;border:1px solid #e7e8ec;border-radius:9px;b
 .answer-options[hidden]{display:none}
 .option-button{min-width:43px;padding:9px 12px;border:1px solid #dfe3ed;border-radius:9px;background:#fff;color:#394150;font-size:13px;font-weight:700}
 .option-button:hover:not(:disabled){border-color:#597be1;color:#365ed3}
-.option-button:disabled{cursor:default;opacity:.65}
-.option-button.selected{background:#e6edff;border-color:#597be1;color:#315fd6}
-.explore-controls{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:12px}
-.explore-controls select{width:auto;min-width:110px}
-.note-pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.option-button:disabled{cursor:default;opacity:.55}
+.option-button.selected{background:#e6edff;border-color:#597be1;color:#315fd6;opacity:1}
+.chord-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.chord-options .option-button{min-width:0;padding:11px 12px;text-align:left;font-size:12px}
+.chord-options .option-symbol{color:#242a33;font-size:14px;font-weight:750;letter-spacing:-.01em}
+.chord-options .option-name{color:#a0a6b2;font-size:11px;font-weight:600;margin-left:2px}
+.chord-options .option-button.selected .option-symbol{color:#2e5fdf}
+.chord-options .option-button.selected .option-name{color:#7590d8}
+.note-pills{display:flex;flex-wrap:wrap;gap:6px}
 .note-pill{padding:5px 8px;border-radius:7px;background:#e8edfb;color:#4869c0;font-size:11px;font-weight:700}
 
 /* 指板交互 */
 .fret-cell{cursor:pointer}
+.fret-cell:focus{outline:none}
 .fret-cell:focus-visible{outline:none}
 .fret-cell:hover .cell-hit,.fret-cell:focus-visible .cell-hit{fill:rgba(67,111,224,.12)}
 .fret-cell:focus-visible .cell-ring{stroke:#376be2;stroke-width:2}
-.fret-cell[aria-disabled="true"]{cursor:default}
-.fret-cell[aria-disabled="true"]:hover .cell-hit{fill:transparent}
-.cell-label{font:700 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;pointer-events:none}
+.fret-cell.is-ringing .cell-hit{fill:rgba(46,95,223,.16)}
+.cell-label{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:700;pointer-events:none}
 
 @media(min-width:1161px){
   .hero h1 br{display:none}
@@ -125,12 +151,14 @@ select{width:100%;padding:10px 12px;border:1px solid #e7e8ec;border-radius:9px;b
   .field-row{grid-template-columns:repeat(2,minmax(0,1fr))}
   .practice-card{padding:22px}
   .fretboard-card{padding:22px 20px 16px}
+  .fretboard{min-width:760px}
 }
 
 @media(max-width:600px){
   .app-shell{padding:0 14px}
   .topbar{height:68px}
   .topbar-caption{display:none}
+  .sound-toggle{margin-right:0;padding:6px 9px}
   .hero{padding:24px 9px 22px}
   .hero h1{font-size:36px}
   .hero p{font-size:14px}
@@ -145,8 +173,7 @@ select{width:100%;padding:10px 12px;border:1px solid #e7e8ec;border-radius:9px;b
   .field-row{grid-template-columns:1fr}
   .side-card{padding:20px}
   .fretboard-heading{align-items:start}
-  .fretboard{min-width:520px}
-  .board-legend{max-width:110px;text-align:right}
+  .board-legend{max-width:150px}
   .footer{padding:22px 4px 30px}
 }
 
